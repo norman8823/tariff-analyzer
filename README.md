@@ -1,70 +1,152 @@
-# Getting Started with Create React App
+# Tariff Analyzer
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A web application that analyzes tariff news to extract key information and provide sentiment analysis for affected sectors. This tool helps financial analysts quickly process tariff-related news and prioritize their research.
 
-## Available Scripts
+## Features
 
-In the project directory, you can run:
+### MVP Version
+- Paste news text for instant AI-powered analysis
+- Get structured summaries of tariff actions, countries involved, and affected industries
+- View sentiment outlook analysis for affected sectors
+- Save and view history of past analyses
 
-### `npm start`
+### Enhanced Version
+- Browse recent tariff news automatically fetched from News API
+- Select articles for analysis with a single click
+- View original articles in their source publications
+- All features from the MVP version included
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## Tech Stack
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+### Backend
+- Node.js & Express
+- MongoDB Atlas (database)
+- Auth0 (authentication)
+- Google Gemini AI API (text analysis)
+- News API (enhanced version)
 
-### `npm test`
+### Frontend
+- React
+- React Router (navigation)
+- Auth0 React SDK (authentication)
+- React Markdown (rendering analysis)
+- Tailwind CSS (styling)
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## Getting Started
 
-### `npm run build`
+### Prerequisites
+- Node.js (v16 or later)
+- npm or yarn
+- MongoDB Atlas account
+- Auth0 account
+- Google Gemini API key
+- News API key (for enhanced version)
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### Installation
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+#### Backend Setup
+1. Clone the repository
+   ```
+   git clone https://github.com/yourusername/tariff-analyzer.git
+   cd tariff-analyzer/backend
+   ```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+2. Install dependencies
+   ```
+   npm install
+   ```
 
-### `npm run eject`
+3. Create a `.env` file with the following variables:
+   ```
+   PORT=5000
+   MONGODB_URI=your_mongodb_connection_string
+   AUTH0_AUDIENCE=your_auth0_api_identifier
+   AUTH0_ISSUER=https://your-auth0-domain.auth0.com/
+   GEMINI_API_KEY=your_gemini_api_key
+   NEWS_API_KEY=your_news_api_key  # For enhanced version
+   ```
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+4. Start the backend server
+   ```
+   npm run dev
+   ```
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+#### Frontend Setup
+1. Navigate to the frontend directory
+   ```
+   cd ../frontend
+   ```
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+2. Install dependencies
+   ```
+   npm install
+   ```
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+3. Create a `.env` file with the following variables:
+   ```
+   REACT_APP_AUTH0_DOMAIN=your_auth0_domain.auth0.com
+   REACT_APP_AUTH0_CLIENT_ID=your_auth0_client_id
+   REACT_APP_AUTH0_AUDIENCE=your_auth0_api_identifier
+   REACT_APP_API_URL=http://localhost:5000
+   ```
 
-## Learn More
+4. Start the frontend development server
+   ```
+   npm start
+   ```
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+5. Open your browser and navigate to `http://localhost:3000`
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+## Usage
 
-### Code Splitting
+### Text Analysis (MVP)
+1. Log in to the application
+2. Navigate to "Paste Analysis"
+3. Enter a title (optional) and paste the news text
+4. Click "Analyze Tariff News"
+5. View the structured analysis of tariff details and sentiment outlook
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+### News Browse (Enhanced Version)
+1. Log in to the application
+2. Navigate to "Tariff News"
+3. Browse through recent tariff-related news articles 
+4. Click on an article to select it
+5. Click "Analyze Selected Article" to generate an analysis
+6. View the results in the same format as the text analysis
 
-### Analyzing the Bundle Size
+## Project Structure
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+```
+tariff-analyzer/
+│
+├── backend/                      # Backend Node.js application
+│   ├── models/                   # MongoDB schemas
+│   ├── routes/                   # API routes
+│   ├── middleware/               # Custom middleware
+│   ├── services/                 # Service layer
+│   ├── server.js                 # Main server file
+│   └── package.json              # Backend dependencies
+│
+└── frontend/                     # Frontend React application
+    ├── public/                   # Static files
+    ├── src/                      # Source code
+    │   ├── components/           # Reusable React components
+    │   ├── pages/                # Page components
+    │   ├── utils/                # Utility functions
+    │   ├── App.js                # Main App component
+    │   └── index.js              # Entry point
+    └── package.json              # Frontend dependencies
+```
 
-### Making a Progressive Web App
+## Disclaimer
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+This tool provides AI-generated analysis based on provided text. It is NOT financial advice. Users should verify information and consult qualified professionals for investment decisions.
 
-### Advanced Configuration
+## License
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+[MIT License](LICENSE)
 
-### Deployment
+## Acknowledgments
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+- This project was created as a weekend hackathon project
+- Uses Google's Gemini AI for natural language processing
