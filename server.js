@@ -90,7 +90,7 @@ ${text}
 """`;
 
     // Call Gemini API
-    const model = genAI.getGenerativeModel({ model: "gemini-pro" });
+    const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
     const result = await model.generateContent(prompt);
     const response = result.response;
     const analysisText = response.text();
