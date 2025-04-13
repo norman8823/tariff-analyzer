@@ -6,6 +6,8 @@ import { useAuth0 } from '@auth0/auth0-react';
 const Navbar = () => {
   const { isAuthenticated, loginWithRedirect, logout, user } = useAuth0();
 
+  console.log('Auth status:', { isAuthenticated, user }); // Added for debugging
+  
   return (
     <nav className="bg-blue-600 text-white p-4">
       <div className="container mx-auto flex justify-between items-center">
