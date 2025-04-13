@@ -1,75 +1,93 @@
-// services/newsService.js - Enhanced Version
+// services/newsService.js
+require('dotenv').config();
+const { EventRegistry, QueryArticlesIter } = require('eventregistry');
 
-/**
- * Fetches tariff-related news from the News API
- * @param {string} keywords - Search keywords
- * @param {string} fromDate - Start date in YYYY-MM-DD format
- * @param {string} toDate - End date in YYYY-MM-DD format
- * @returns {Promise<Array>} - Array of news articles
- */
-const fetchTariffNews = async (keywords, fromDate, toDate) => {
+class NewsService {
+  constructor() {
+    this.er = new EventRegistry({
+      apiKey: process.env.NEWS_API_KEY,
+      allowUseOfArchive: true
+    });
+  }
+
+  /**
+   * Fetches recent tariff-related news articles
+   * @param {Object} options - Search options
+   * @param {string} options.keywords - Optional specific keywords to search for
+   * @param {number} options.pageSize - Number of articles to fetch (default: 20)
+   * @param {string} options.sortBy - Sorting criteria (default: 'date')
+   * @returns {Promise<Array>} Array of news articles
+   */
+  async fetchTariffNews(options = {}) {
     try {
-      // Call to News API
-      const newsApiUrl = `https://newsapi.org/v2/everything?q=${encodeURIComponent(keywords)}&from=${fromDate}&to=${toDate}&sortBy=publishedAt&apiKey=${process.env.NEWS_API_KEY}`;
+      const {
+        keywords = 'tariffs',
+        pageSize = 20,
+        sortBy = 'date'
+      } = options;
+
+      // Get concept URI for the keyword
+      const conceptUri = await this.er.getConceptUri(keywords);
       
-      const newsResponse = await fetch(newsApiUrl);
-      if (!newsResponse.ok) {
-        throw new Error('Failed to fetch news');
-      }
-      
-      const newsData = await newsResponse.json();
-      
-      // Extract relevant article info and filter for tariff-related content
-      const articles = newsData.articles
-        .filter(article => {
-          // Only include articles likely to be about tariffs
-          const content = (article.title + ' ' + article.description).toLowerCase();
-          return content.includes('tariff') || 
-                 content.includes('trade') || 
-                 content.includes('import tax') ||
-                 content.includes('export tax') ||
-                 content.includes('trade war') ||
-                 content.includes('trade policy') ||
-                 content.includes('trade dispute') ||
-                 content.includes('customs duty');
-        })
-        .map(article => ({
-          title: article.title,
-          description: article.description,
-          url: article.url,
-          source: article.source.name,
-          publishedAt: article.publishedAt,
-          content: article.content // Note: News API typically provides truncated content
-        }));
-      
+      // Create query iterator
+      const q = new QueryArticlesIter(this.er, {
+        conceptUri: conceptUri,
+        sortBy: sortBy,
+        lang: ["eng"],  // Only English articles
+        maxItems: pageSize
+      });
+
+      const articles = [];
+
+      // Execute query and collect articles
+      await new Promise((resolve) => {
+        q.execQuery((article) => {
+          if (article && article.lang === "eng") {  // Double-check language
+            articles.push({
+              title: article.title,
+              description: article.body?.substring(0, 200) + "...",  // Create a description from body
+              content: article.body,
+              url: article.url,
+              urlToImage: article.image,
+              publishedAt: article.date,
+              source: {
+                id: article.source?.uri,
+                name: article.source?.title || 'Unknown'
+              },
+              author: article.authors?.join(', ') || null,
+              categories: article.categories || [],
+              sentiment: article.sentiment,
+              language: article.lang
+            });
+          }
+          if (!article) {
+            resolve();
+          }
+        });
+      });
+
       return articles;
+
     } catch (error) {
       console.error('News API error:', error);
       throw new Error('Failed to fetch news articles');
     }
-  };
-  
+  }
+
   /**
    * Gets default date range for news search (last 48 hours)
    * @returns {{from: string, to: string}} Date range object with ISO date strings
    */
-  const getDefaultDateRange = () => {
+  getDefaultDateRange() {
     const today = new Date();
-    const twoDaysAgo = new Date();
+    const twoDaysAgo = new Date(today);
     twoDaysAgo.setHours(today.getHours() - 48);
     
-    // Format as YYYY-MM-DD
-    const formatDate = (date) => {
-      return date.toISOString().split('T')[0];
-    };
-    
     return {
-      from: formatDate(twoDaysAgo),
-      to: formatDate(today)
+      from: twoDaysAgo.toISOString().split('T')[0],
+      to: today.toISOString().split('T')[0]
     };
-  };
-  
-  module.exports = {
-    fetchTariffNews,
-    getDefaultDateRange
-  };
+  }
+}
+
+module.exports = new NewsService();
