@@ -1,20 +1,35 @@
 # Dependency directories
 /node_modules
+<<<<<<< HEAD
+=======
+/.pnp
+.pnp.js
+
+# Testing
+/coverage
+
+# Production build
+/build
+>>>>>>> be8c1b7ddac3cd4ba2f7c894a12a36efb74d4f52
 
 # Environment variables
 .env
 .env.local
-.env.development
-.env.test
-.env.production
+.env.development.local
+.env.test.local
+.env.production.local
 
 # Logs
+<<<<<<< HEAD
 logs
 *.log
+=======
+>>>>>>> be8c1b7ddac3cd4ba2f7c894a12a36efb74d4f52
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
+<<<<<<< HEAD
 # Runtime data
 pids
 *.pid
@@ -46,6 +61,9 @@ node_modules/
 Thumbs.db
 
 # Editor directories
+=======
+# Editor directories and files
+>>>>>>> be8c1b7ddac3cd4ba2f7c894a12a36efb74d4f52
 .idea/
 .vscode/
 *.suo
@@ -53,9 +71,15 @@ Thumbs.db
 *.njsproj
 *.sln
 
+<<<<<<< HEAD
 # Yarn
 .yarn/cache
 .yarn/unplugged
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+=======
+# Misc
+.DS_Store
+.env.local
+>>>>>>> be8c1b7ddac3cd4ba2f7c894a12a36efb74d4f52
