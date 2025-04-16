@@ -1,7 +1,6 @@
 {
   "name": "tariff-analyzer",
   "version": "1.0.0",
-  "description": "A web application that analyzes tariff news to extract key information and provide sentiment analysis for affected sectors.",
   "private": true,
   "workspaces": [
     "frontend",
@@ -9,7 +8,10 @@
   ],
   "scripts": {
     "start": "npm run start -w frontend -w backend",
-    "dev": "npm run dev -w frontend -w backend",
+    "dev": "concurrently \"npm run dev -w backend\" \"npm start -w frontend\"",
     "build": "npm run build -w frontend && npm run build -w backend"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.0"
   }
 }
