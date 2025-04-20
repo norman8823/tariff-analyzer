@@ -5,7 +5,7 @@ const { EventRegistry, QueryArticles, RequestArticleInfo } = require('eventregis
 class NewsService {
   constructor() {
     this.er = new EventRegistry({
-      apiKey: process.env.EVENT_REGISTRY_API_KEY, // Make sure to update your env variable name
+      apiKey: process.env.EVENT_REGISTRY_API_KEY,
       allowUseOfArchive: true,
       verboseOutput: true, // Enable for debugging
       logging: true

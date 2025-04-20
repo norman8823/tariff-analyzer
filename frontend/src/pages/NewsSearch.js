@@ -62,6 +62,7 @@ const NewsSearch = () => {
         }
 
         const data = await response.json();
+        console.log('Received articles:', data.articles);
         setArticles(data.articles || []);
         
         if (data.articles?.length === 0) {
@@ -99,7 +100,7 @@ const NewsSearch = () => {
           'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({ 
-          title: `${selectedArticle.source}: ${new Date(selectedArticle.publishedAt).toLocaleDateString()}`,
+          title: `${getSourceName(selectedArticle)}: ${new Date(selectedArticle.publishedAt).toLocaleDateString()}`,
           text: selectedArticle.content || selectedArticle.description
         })
       });
@@ -120,7 +121,24 @@ const NewsSearch = () => {
     }
   };
 
+  // Helper to safely get source name from different formats
+  const getSourceName = (article) => {
+    if (!article) return 'Unknown Source';
+    
+    // Handle both object format and string format
+    if (article.source) {
+      if (typeof article.source === 'string') {
+        return article.source;
+      } else if (article.source.name) {
+        return article.source.name;
+      }
+    }
+    
+    return 'Unknown Source';
+  };
+
   // Format the published date
+  // eslint-disable-next-line no-unused-vars
   const formatDate = (dateString) => {
     const options = { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' };
     return new Date(dateString).toLocaleDateString(undefined, options);
@@ -128,6 +146,8 @@ const NewsSearch = () => {
 
   // Calculate time ago for articles
   const getTimeAgo = (publishDate) => {
+    if (!publishDate) return 'Unknown time';
+    
     const now = new Date();
     const publishedDate = new Date(publishDate);
     const diffMs = now - publishedDate;
@@ -183,7 +203,7 @@ const NewsSearch = () => {
                   >
                     <h3 className="font-medium text-lg text-gray-900">{article.title}</h3>
                     <p className="text-sm text-gray-500 mt-1">
-                      {article.source} • {getTimeAgo(article.publishedAt)}
+                      {getSourceName(article)} • {getTimeAgo(article.publishedAt)}
                     </p>
                     <p className="text-sm mt-2 text-gray-700">{article.description}</p>
                     
@@ -210,7 +230,7 @@ const NewsSearch = () => {
         <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 flex justify-between items-center">
           <div>
             <p className="font-medium">Selected: {selectedArticle.title}</p>
-            <p className="text-sm text-gray-600">{selectedArticle.source}</p>
+            <p className="text-sm text-gray-600">{getSourceName(selectedArticle)}</p>
           </div>
           
           <button

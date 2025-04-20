@@ -16,8 +16,9 @@ router.post('/fetch-news', checkJwt, async (req, res) => {
     const { keywords, fromDate, toDate } = req.body;
     
     const articles = await NewsService.fetchTariffNews({
-      keywords: keywords || 'tariffs economic trade policy',
-      pageSize: 20
+      keywords: keywords || 'tariffs trade economic policy',
+      pageSize: 20,
+      sortBy: 'date'
     });
 
     res.json({ articles });
