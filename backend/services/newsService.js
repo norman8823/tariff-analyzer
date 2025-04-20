@@ -1,12 +1,14 @@
 // services/newsService.js
 require('dotenv').config();
-const { EventRegistry, QueryArticlesIter, QueryItems, BaseQuery } = require('eventregistry');
+const { EventRegistry, QueryArticles, RequestArticleInfo } = require('eventregistry');
 
 class NewsService {
   constructor() {
     this.er = new EventRegistry({
-      apiKey: process.env.NEWS_API_KEY,
-      allowUseOfArchive: true
+      apiKey: process.env.EVENT_REGISTRY_API_KEY, // Make sure to update your env variable name
+      allowUseOfArchive: true,
+      verboseOutput: true, // Enable for debugging
+      logging: true
     });
   }
 
@@ -28,73 +30,68 @@ class NewsService {
 
       console.log('Fetching news with options:', options);
 
-      // Create a more specific query
-      const q = new QueryArticlesIter(this.er, {
-        keywords: "tariffs OR trade tariffs OR import tariffs OR export tariffs OR customs duty",
-        keywordsLoc: "title,body",  // Search in both title and body
-        categoryUri: await this.er.getCategoryUri("Business"),  // Focus on business news
-        lang: ["eng"],
-        sortBy: sortBy,
-        maxItems: pageSize,
-        isDuplicateFilter: "skipDuplicates",  // Skip duplicate articles
-        articleBodyLen: -1  // Get full article body
-      });
-
-      const articles = [];
+      // Get the date range (last 48 hours)
+      const dateRange = this.getDefaultDateRange();
       
-      return new Promise((resolve) => {
-        let articleCount = 0;
+      // Create a direct query using the structure from the API documentation
+      const q = new QueryArticles({
+        action: "getArticles",
+        keyword: keywords || "tariffs OR trade tariffs OR import tariffs OR export tariffs OR customs duty",
+        keywordOper: "or",
+        dateStart: dateRange.from,
+        dateEnd: dateRange.to,
+        articlesPage: 1,
+        articlesCount: pageSize,
+        articlesSortBy: sortBy === 'date' ? 'date' : 'rel',
+        articlesSortByAsc: false,
+        dataType: ["news", "blog"],
+        lang: "eng",
         
-        q.execQuery((article) => {
-          if (!article) {
-            console.log(`Query complete. Found ${articleCount} articles`);
-            resolve(articles);
-            return;
-          }
-
-          // Check if the article is relevant to tariffs
-          const isRelevant = this.isArticleRelevantToTariffs(article);
-          
-          if (article.lang === "eng" && isRelevant) {
-            articleCount++;
-            articles.push({
-              title: article.title,
-              description: article.body?.substring(0, 200) + "...",
-              content: article.body,
-              url: article.url,
-              urlToImage: article.image,
-              publishedAt: article.date,
-              source: {
-                id: article.source?.uri,
-                name: article.source?.title || 'Unknown'
-              },
-              author: article.authors?.join(', ') || null,
-              categories: article.categories || [],
-              sentiment: article.sentiment,
-              language: article.lang,
-              relevanceScore: article.relevanceScore || 1
-            });
-            
-            // If we've reached the pageSize limit, resolve
-            if (articleCount >= pageSize) {
-              console.log(`Reached article limit (${pageSize})`);
-              resolve(articles);
-            }
-          }
-        });
-
-        // Set a timeout just in case
-        setTimeout(() => {
-          if (articles.length === 0) {
-            console.log('Query timed out - no articles found');
-            resolve([]);
-          }
-        }, 15000);
+        // Include article details we need
+        resultType: "articles",
+        includeArticleImage: true,
+        includeArticleVideos: false,
+        includeArticleLinks: true,
+        includeArticleSocialScore: true,
+        includeArticleDetails: true
       });
+
+      // Execute the query
+      console.log('Executing EventRegistry query...');
+      const response = await this.er.execQuery(q);
+      console.log(`Query executed, received response with status: ${response ? 'success' : 'failed'}`);
+      
+      if (!response || !response.articles || !response.articles.results) {
+        console.log('No articles found in response');
+        return [];
+      }
+      
+      console.log(`Found ${response.articles.results.length} articles in raw response`);
+      
+      // Process and filter the articles
+      const articles = response.articles.results
+        .filter(article => this.isArticleRelevantToTariffs(article))
+        .map(article => ({
+          title: article.title,
+          description: article.body ? (article.body.substring(0, 200) + "...") : article.title,
+          content: article.body || article.title,
+          url: article.url,
+          urlToImage: article.image,
+          publishedAt: article.date,
+          source: {
+            id: article.source?.uri,
+            name: article.source?.title || 'Unknown'
+          },
+          author: article.authors?.join(', ') || null,
+          sentiment: article.sentiment
+        }));
+      
+      console.log(`Returning ${articles.length} relevant articles after filtering`);
+      return articles;
 
     } catch (error) {
-      console.error('News API error:', error);
-      throw new Error('Failed to fetch news articles');
+      console.error('EventRegistry API error:', error);
+      throw new Error(`Failed to fetch news articles: ${error.message}`);
     }
   }
 
@@ -116,8 +113,9 @@ class NewsService {
     ];
 
     // Check title (higher weight)
+    const titleText = article.title.toLowerCase();
     const titleMatch = tariffKeywords.some(keyword => 
-      article.title.toLowerCase().includes(keyword.toLowerCase())
+      titleText.includes(keyword.toLowerCase())
     );
 
     if (titleMatch) return true;
@@ -129,8 +127,8 @@ class NewsService {
         bodyText.includes(keyword.toLowerCase())
       );
 
-      // Require at least two keyword matches in the body for relevance
-      return keywordMatches.length >= 2;
+      // Require at least one keyword match in the body for relevance
+      return keywordMatches.length >= 1;
     }
 
     return false;
@@ -145,9 +143,14 @@ class NewsService {
     const twoDaysAgo = new Date(today);
     twoDaysAgo.setHours(today.getHours() - 48);
     
+    // Format as YYYY-MM-DD for EventRegistry
+    const formatDate = (date) => {
+      return date.toISOString().split('T')[0];
+    };
+    
     return {
-      from: twoDaysAgo.toISOString().split('T')[0],
-      to: today.toISOString().split('T')[0]
+      from: formatDate(twoDaysAgo),
+      to: formatDate(today)
     };
   }
 }
