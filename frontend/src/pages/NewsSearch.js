@@ -35,6 +35,7 @@ const NewsSearch = () => {
   // Automatically fetch tariff news on component mount
   useEffect(() => {
     const fetchTariffNews = async () => {
+      console.log('Sending request to:', `${process.env.REACT_APP_API_URL}/api/fetch-news`);
       setLoading(true);
       setError(null);
 

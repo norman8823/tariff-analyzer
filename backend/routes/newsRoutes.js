@@ -18,6 +18,31 @@ const ensureDataDir = async () => {
   }
 };
 
+router.post('/fetch-news', async (req, res) => {
+  try {
+    console.log('POST /api/fetch-news route hit with body:', req.body);
+    const { keywords, fromDate, toDate } = req.body;
+    
+    // Call the fetchTariffNews method with an options object
+    const articles = await newsService.fetchTariffNews({
+      keywords: keywords || 'tariffs economic trade policy',
+      pageSize: 20,
+      sortBy: 'date'
+      // Note: The current implementation doesn't directly use fromDate/toDate
+
+    });
+    
+    console.log(`Found ${articles ? articles.length : 0} articles`);
+    res.json({ articles });
+  } catch (error) {
+    console.error('News route error:', error);
+    res.status(500).json({ 
+      error: 'Failed to fetch news articles', 
+      message: error.message 
+    });
+  }
+});
+
 // Get cached news or fetch new ones
 router.get('/news', async (req, res) => {
   try {
