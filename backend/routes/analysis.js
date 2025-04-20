@@ -24,7 +24,7 @@ router.post('/analyze', checkJwt, async (req, res) => {
     const prompt = `You are an expert Financial Analyst Assistant specializing in trade policy impacts. Analyze the following news text regarding tariffs.
 
 **Part 1: Summarize the Tariff News**
-Extract and summarize the key information using concise bullet points under these headings:
+Extract and summarize the key information under these headings:
 *   **Tariff Action(s):** [Specific tariffs mentioned, rates, status like proposed/implemented]
 *   **Countries/Regions Involved:** [List countries/blocs imposing or targeted by tariffs]
 *   **Affected Industries/Products:** [List specific sectors or goods mentioned]
