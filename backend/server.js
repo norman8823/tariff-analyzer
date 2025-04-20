@@ -1,18 +1,27 @@
-// server.js - Main Express server file - Modified for Enhanced Version
-
+// server.js - Main Express server file - Enhanced Version
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
 const { auth } = require('express-oauth2-jwt-bearer');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
-require('dotenv').config();
+const rateLimit = require('express-rate-limit');
+const newsRoutes = require('./routes/newsRoutes');
 
 const app = express();
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT || 3001;
 
 // Middleware
 app.use(cors());
 app.use(express.json({ limit: '1mb' }));
+
+// Rate limiting
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100 // limit each IP to 100 requests per windowMs
+});
+
+app.use(limiter);
 
 // Auth0 configuration
 const checkJwt = auth({
@@ -60,6 +69,8 @@ const Analysis = mongoose.model('Analysis', analysisSchema);
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 // Routes
+app.use('/api', newsRoutes);  // News API routes
+
 // 1. Analyze text route
 app.post('/api/analyze', checkJwt, async (req, res) => {
   try {
@@ -82,8 +93,6 @@ Based *only* on the impacts and information presented *in this text*, analyze th
 *   **Justification:** [Provide a brief (1-2 sentence) explanation for the sentiment classification, referencing specific points from the text. Example: 'Negative sentiment due to potential for increased input costs and retaliatory tariffs mentioned.']
 *   **Affected Sectors Mentioned:** [Re-list the key sectors identified]
 
-**Constraint:** Base all summaries and analysis strictly on the provided text. Do not invent information or provide external financial advice. The Sentiment Outlook is illustrative of potential market reaction based solely on this news snippet.
-
 News Text:
 """
 ${text}
@@ -95,16 +104,14 @@ ${text}
     const response = result.response;
     const analysisText = response.text();
     
-    // Split the response into tariff summary and sentiment outlook
-    // This is a simple split - you may need more sophisticated parsing
-    const parts = analysisText.split('**Part 2:');
-    const tariffSummary = parts[0] || 'Analysis failed';
-    const sentimentOutlook = parts.length > 1 ? '**Part 2:' + parts[1] : 'Analysis failed';
+    // Parse the analysis text to extract sections
+    const tariffSummary = analysisText.split('**Part 2:')[0].trim();
+    const sentimentOutlook = analysisText.split('**Part 2:')[1].trim();
     
-    // Store in MongoDB
+    // Save to MongoDB
     const analysis = new Analysis({
       userId,
-      title,
+      title: title || 'Untitled Analysis',
       inputText: text,
       tariffSummary,
       sentimentOutlook,
@@ -161,51 +168,6 @@ app.get('/api/analyses/:id', checkJwt, async (req, res) => {
   }
 });
 
-// 4. News API integration (Enhanced version)
-app.post('/api/fetch-news', checkJwt, async (req, res) => {
-  try {
-    const { keywords, fromDate, toDate } = req.body;
-    const userId = req.auth.payload.sub;
-    
-    // Call to News API
-    const newsApiUrl = `https://newsapi.org/v2/everything?q=${encodeURIComponent(keywords)}&from=${fromDate}&to=${toDate}&sortBy=publishedAt&apiKey=${process.env.NEWS_API_KEY}`;
-    
-    const newsResponse = await fetch(newsApiUrl);
-    if (!newsResponse.ok) {
-      throw new Error('Failed to fetch news');
-    }
-    
-    const newsData = await newsResponse.json();
-    
-    // Extract relevant article info and filter for tariff-related content
-    const articles = newsData.articles
-      .filter(article => {
-        // Only include articles likely to be about tariffs
-        const content = (article.title + ' ' + article.description).toLowerCase();
-        return content.includes('tariff') || 
-               content.includes('trade') || 
-               content.includes('import tax') ||
-               content.includes('export tax') ||
-               content.includes('trade war') ||
-               content.includes('trade policy') ||
-               content.includes('trade dispute');
-      })
-      .map(article => ({
-        title: article.title,
-        description: article.description,
-        url: article.url,
-        source: article.source.name,
-        publishedAt: article.publishedAt,
-        content: article.content // Note: News API typically provides truncated content
-      }));
-    
-    res.json({ articles });
-  } catch (error) {
-    console.error('News API error:', error);
-    res.status(500).json({ error: 'Failed to fetch news articles' });
-  }
-});
-
 // Add a MongoDB connection test endpoint
 app.get('/api/test-mongo', async (req, res) => {
   try {
@@ -230,6 +192,12 @@ app.get('/api/test-mongo', async (req, res) => {
       stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
     });
   }
+});
+
+// Error handling middleware
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).json({ error: 'Something went wrong!' });
 });
 
 // Start server
