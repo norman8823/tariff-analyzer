@@ -12,10 +12,8 @@ import ProtectedRoute from './components/ProtectedRoute';
 // Pages
 import Home from './pages/Home';
 import Analysis from './pages/Analysis';
-import AnalysisHistory from './pages/AnalysisHistory';
 import AnalysisDetail from './pages/AnalysisDetail';
 import NewsSearch from './pages/NewsSearch';
-import LoginTest from './pages/LoginTest';
 
 function App() {
   const { isLoading } = useAuth0();
@@ -39,11 +37,6 @@ function App() {
                 <Analysis />
               </ProtectedRoute>
             } />
-            <Route path="/history" element={
-              <ProtectedRoute>
-                <AnalysisHistory />
-              </ProtectedRoute>
-            } />
             <Route path="/analysis/:id" element={
               <ProtectedRoute>
                 <AnalysisDetail />
@@ -56,7 +49,6 @@ function App() {
                 <NewsSearch />
               </ProtectedRoute>
             } />
-            <Route path="/login-test" element={<LoginTest />} />
           </Routes>
         </main>
         <footer className="bg-gray-100 py-6 mt-12">

@@ -43,22 +43,6 @@ router.post('/analyze', checkJwt, async (req, res) => {
   }
 });
 
-
-// GET /api/analyses - Get all analyses for the current user
-router.get('/analyses', checkJwt, async (req, res) => {
-  try {
-    const userId = req.auth.payload.sub;
-    const analyses = await Analysis.find({ userId })
-      .sort({ timestamp: -1 })
-      .select('title timestamp _id');
-    
-    res.json(analyses);
-  } catch (error) {
-    console.error('Error fetching analyses:', error);
-    res.status(500).json({ error: 'Failed to fetch analyses' });
-  }
-});
-
 // GET /api/analyses/:id - Get a specific analysis by ID
 router.get('/analyses/:id', checkJwt, async (req, res) => {
   try {

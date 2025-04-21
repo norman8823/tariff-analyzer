@@ -119,12 +119,7 @@ const Analysis = () => {
           </div>
           
           <div className="flex justify-between mt-8">
-            <button
-              onClick={() => navigate('/history')}
-              className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
-            >
-              View Analysis History
-            </button>
+
             
             <button
               onClick={() => {

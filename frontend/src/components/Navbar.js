@@ -20,9 +20,6 @@ const Navbar = () => {
               <Link to="/analysis" className="hover:underline">
                 Paste Analysis
               </Link>
-              <Link to="/history" className="hover:underline">
-                History
-              </Link>
               
               {/* Enhanced Version Navigation */}
               <Link to="/news-search" className="hover:underline">

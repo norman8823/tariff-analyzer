@@ -122,19 +122,7 @@ const AnalysisDetail = () => {
       </div>
       
       <div className="flex justify-between">
-        <button
-          onClick={handleBackToHistory}
-          className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
-        >
-          Back to History
-        </button>
         
-        <button
-          onClick={handleNewAnalysis}
-          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-        >
-          New Analysis
-        </button>
       </div>
     </div>
   );

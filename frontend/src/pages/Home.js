@@ -45,19 +45,6 @@ const Home = () => {
                 </Link>
               </div>
             </div>
-            
-            <div className="bg-white p-6 rounded shadow-md">
-              <h2 className="text-xl font-bold mb-3">Analysis History</h2>
-              <p className="mb-4 text-gray-600">
-                View your previous tariff news analyses and insights.
-              </p>
-              <Link 
-                to="/history" 
-                className="inline-block bg-purple-600 text-white px-4 py-2 rounded hover:bg-purple-700"
-              >
-                View History
-              </Link>
-            </div>
           </div>
         ) : (
           <div className="bg-white p-8 rounded shadow-md max-w-md mx-auto">
