@@ -15,11 +15,7 @@ const analysisSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  tariffSummary: {
-    type: String,
-    required: true
-  },
-  sentimentOutlook: {
+  analysis: {     
     type: String,
     required: true
   },
@@ -30,7 +26,7 @@ const analysisSchema = new mongoose.Schema({
 });
 
 // Add a text index for potential search functionality
-analysisSchema.index({ inputText: 'text', title: 'text' });
+analysisSchema.index({ inputText: 'text', title: 'text', analysis: 'text' });
 
 const Analysis = mongoose.model('Analysis', analysisSchema);
 

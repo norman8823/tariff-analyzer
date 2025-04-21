@@ -96,6 +96,9 @@ const AnalysisDetail = () => {
   
   if (!analysis) return null;
   
+  // Get the analysis content from either analysis field or tariffSummary (for compatibility)
+  const analysisContent = analysis.analysis || analysis.tariffSummary;
+  
   return (
     <div className="max-w-4xl mx-auto">
       <h1 className="text-2xl font-bold mb-6">Analysis Detail</h1>
@@ -106,18 +109,8 @@ const AnalysisDetail = () => {
           <p className="text-sm text-gray-600 mt-1">Analyzed on {formatDate(analysis.timestamp)}</p>
         </div>
         
-        <div className="mb-6">
-          <h2 className="text-xl font-bold mb-3">Tariff Summary</h2>
-          <div className="prose max-w-none">
-            <ReactMarkdown>{analysis.tariffSummary}</ReactMarkdown>
-          </div>
-        </div>
-        
-        <div className="mb-6">
-          <h2 className="text-xl font-bold mb-3">Investment Sentiment Outlook</h2>
-          <div className="prose max-w-none">
-            <ReactMarkdown>{analysis.sentimentOutlook}</ReactMarkdown>
-          </div>
+        <div className="prose max-w-none mb-6">
+          <ReactMarkdown>{analysisContent}</ReactMarkdown>
         </div>
         
         <div className="mt-8 pt-6 border-t border-gray-200">
@@ -125,13 +118,6 @@ const AnalysisDetail = () => {
           <div className="bg-gray-50 p-4 rounded text-sm text-gray-700 max-h-96 overflow-y-auto">
             {analysis.inputText}
           </div>
-        </div>
-        
-        <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mt-6">
-          <p className="text-sm text-yellow-700">
-            <strong>Disclaimer:</strong> AI-generated analysis based on provided text. 
-            NOT financial advice. Verify information and consult a qualified professional.
-          </p>
         </div>
       </div>
       

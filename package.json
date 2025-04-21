@@ -1,6 +1,5 @@
 {
   "name": "tariff-analyzer",
-  "name": "tariff-analyzer",
   "version": "1.0.0",
   "private": true,
   "workspaces": [
@@ -14,5 +13,8 @@
   },
   "devDependencies": {
     "concurrently": "^8.2.0"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.39.0"
   }
 }

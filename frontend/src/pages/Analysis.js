@@ -50,6 +50,7 @@ const Analysis = () => {
       <h1 className="text-2xl font-bold mb-6">Tariff News Analysis</h1>
       
       <form onSubmit={handleSubmit} className="mb-8">
+        {/* Form fields remain the same */}
         <div className="mb-4">
           <label htmlFor="title" className="block mb-2 font-medium">
             Source/Title (Optional)
@@ -112,18 +113,9 @@ const Analysis = () => {
       
       {analysis && (
         <div className="bg-white shadow rounded p-6">
-          <div className="mb-6">
-            <h2 className="text-xl font-bold mb-3">Tariff Summary</h2>
-            <div className="prose max-w-none">
-              <ReactMarkdown>{analysis.tariffSummary}</ReactMarkdown>
-            </div>
-          </div>
-          
-          <div className="mb-6">
-            <h2 className="text-xl font-bold mb-3">Investment Sentiment Outlook</h2>
-            <div className="prose max-w-none">
-              <ReactMarkdown>{analysis.sentimentOutlook}</ReactMarkdown>
-            </div>
+          {/* New simplified display using either analysis or tariffSummary field */}
+          <div className="prose max-w-none">
+            <ReactMarkdown>{analysis.analysis || analysis.tariffSummary}</ReactMarkdown>
           </div>
           
           <div className="flex justify-between mt-8">
@@ -146,12 +138,7 @@ const Analysis = () => {
             </button>
           </div>
           
-          <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mt-6">
-            <p className="text-sm text-yellow-700">
-              <strong>Disclaimer:</strong> AI-generated analysis based on provided text. 
-              NOT financial advice. Verify information and consult a qualified professional.
-            </p>
-          </div>
+          {/* The disclaimer is now part of the Gemini output */}
         </div>
       )}
     </div>
